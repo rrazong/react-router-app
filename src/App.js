@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {BrowserRouter as Router, Route, Link, Redirect, withRouter} from 'react-router-dom';
+import queryString from 'query-string';
 
 class App extends Component {
   render() {
@@ -71,10 +72,10 @@ class Complaints extends Component {
     return (
       <div>
         { this.state.goToAccessCodes &&
-          <Redirect to='/access-codes'/>
+          <Redirect to='/access-codes?from=complaints&foo=bar'/>
         }
         Complaints module
-        <button onClick={this.handleClickToAccessCodes}>Go to Access Codes</button>
+        <button onClick={this.handleClickToAccessCodes}>Go to Access Codes</button> with query string
       </div>
     );
   }
@@ -90,6 +91,10 @@ class AccessCodes extends Component {
   }
 
   render() {
+    if (this.props.location) {
+      const queryStrings = queryString.parse(this.props.location.search);
+      console.log('query strings', queryStrings);
+    }
     return (
       <div>
         Access Codes module
