@@ -1,34 +1,76 @@
 import React, { Component } from 'react';
-import {BrowserRouter as Router, Route, Link, NavLink} from 'react-router-dom';
+import {BrowserRouter as Router, Route, Link} from 'react-router-dom';
 
 class App extends Component {
   render() {
+    const routes = [
+      {
+        name: 'Complaints',
+        path: '/complaints',
+        component: Complaints,
+        getInitialData: () => {console.log('Get data for complaints')},
+      },
+      {
+        name: 'Access Codes',
+        path: '/access-codes',
+        component: AccessCodes,
+        getInitialData: () => {console.log('Get data for access codes')},
+      }
+    ];
+
     return (
       <Router>
         <div className="App">
           <ul>
-            <li><Link to='/netflix/123'>Netflix</Link></li>
-            <li><Link to='/amazon/xyz'>Amazon</Link></li>
-            <li><Link to='/yahoo/234-2342-222111'>Yahoo</Link></li>
-            <li><Link to='/auth0/foo/bar'>Auth0</Link></li>
+            {
+              routes.map(({path, name}) => (
+                <li key={name}>
+                  <Link to={path}>{name}</Link>
+                </li>
+              ))
+            }
           </ul>
 
-          <Route path={'/:site/:id'} component={Child}/>
+          {
+            routes.map(({path, component: Component, getInitialData}) => {
+              // const component = (props) => (<Component {...props} getInitialData={getInitialData}/>);
+              return (
+                <Route key={path} path={path} render={(props) => (<Component {...props} getInitialData={getInitialData}/>)}/>
+              );
+            })
+          }
         </div>
       </Router>
     );
   }
 }
 
-const Child = ({match}) => {
-  console.log(match);
-  const {site, id} = match.params;
-  return (
-    <div>
-      <div>SITE: {site}</div>
-      <div>ID: {id}</div>
-    </div>
-  )
+class Complaints extends Component {
+  componentWillMount() {
+    this.props.getInitialData();
+  }
+
+  render() {
+    return (
+      <div>
+        Complaints module
+      </div>
+    );
+  }
+}
+
+class AccessCodes extends Component {
+  componentWillMount() {
+    this.props.getInitialData();
+  }
+
+  render() {
+    return (
+      <div>
+        Access Codes module
+      </div>
+    );
+  }
 }
 
 export default App;
