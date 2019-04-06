@@ -1,109 +1,43 @@
 import React, { Component } from 'react';
-import {BrowserRouter as Router, Route, Link, Redirect, withRouter} from 'react-router-dom';
-import queryString from 'query-string';
+import {BrowserRouter as Router, Route, Link, Switch, Redirect} from 'react-router-dom';
 
 class App extends Component {
   render() {
-    const routes = [
-      {
-        name: 'Complaints',
-        path: '/complaints',
-        component: Complaints,
-        getInitialData: () => {console.log('Get data for complaints')},
-      },
-      {
-        name: 'Access Codes',
-        path: '/access-codes',
-        component: AccessCodes,
-        getInitialData: () => {console.log('Get data for access codes')},
-      }
-    ];
-
     return (
       <Router>
         <div className="App">
-          <h2>Created by Router</h2>
           <ul>
-            {
-              routes.map(({path, name}) => (
-                <li key={name}>
-                  <Link to={path}>{name}</Link>
-                </li>
-              ))
-            }
+            <li><Link to='/'>Home</Link></li>
+            <li><Link to='/page-exists'>Page exists</Link></li>
+            <li><Link to='/deprecated-page'>Deprecated page, redirects to an existing page</Link></li>
+            <li><Link to='/page-does-not-exist'>Page does not exist</Link></li>
+            <li><Link to='/also/does/not/exist'>Page also does not exist</Link></li>
           </ul>
 
-          {
-            routes.map(({path, component: Component, getInitialData}) => {
-              // const component = (props) => (<Component {...props} getInitialData={getInitialData}/>);
-              return (
-                <Route key={path} path={path} render={(props) => (<Component {...props} getInitialData={getInitialData}/>)}/>
-              );
-            })
-          }
-          <hr/>
-          <h2>Not created by Router</h2>
-          <span>So, this.props.history does not exist</span>
-          <AccessCodes getInitialData={() => {console.log('Get data for access codes')}}/>
-          <hr/>
-          <h2>Created by withRouter</h2>
-          <BetterAccessCodes getInitialData={() => {console.log('Get data for better access codes')}}/>
+          <Switch>
+            <Route exact path='/' component={Home}/>
+            <Route path='/page-exists' component={PageExists}/>
+            <Redirect from='/deprecated-page' to='/page-exists'/>
+            <Route component={PageNotFound}/>
+          </Switch>
         </div>
       </Router>
     );
   }
 }
 
-class Complaints extends Component {
-  state = {
-    goToAccessCodes: false,
-  }
+const Home = () => (<div>Home</div>);
+const PageExists = () => (<div>Page OK</div>);
+// const PageNotFound = (props) => console.log(props) || (<div>Page Not Found: {props.location.pathname}</div>);
 
-  componentWillMount() {
-    this.props.getInitialData();
-  }
-
-  handleClickToAccessCodes = () => {
-    this.setState({goToAccessCodes: true})
-  }
-
+class PageNotFound extends Component {
   render() {
-    console.log('state is', this.state);
     return (
       <div>
-        { this.state.goToAccessCodes &&
-          <Redirect to='/access-codes?from=complaints&foo=bar'/>
-        }
-        Complaints module
-        <button onClick={this.handleClickToAccessCodes}>Go to Access Codes</button> with query string
+        Page Not Found: {this.props.location.pathname}
       </div>
-    );
+    )
   }
 }
-
-class AccessCodes extends Component {
-  componentWillMount() {
-    this.props.getInitialData();
-  }
-
-  handleClickToComplaints = () => {
-    this.props.history.push('/complaints');
-  }
-
-  render() {
-    if (this.props.location) {
-      const queryStrings = queryString.parse(this.props.location.search);
-      console.log('query strings', queryStrings);
-    }
-    return (
-      <div>
-        Access Codes module
-        <button onClick={this.handleClickToComplaints}>Go to Complaints</button>
-      </div>
-    );
-  }
-}
-
-const BetterAccessCodes = withRouter(AccessCodes);
 
 export default App;
